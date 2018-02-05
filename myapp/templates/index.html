@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Get Feedback</title>
+    <style>
+        ul{
+            margin : 0;
+            padding: 0;
+        }
+        body {
+            font-family: lato-regular,Arial,Helvetica,sans-serif;
+        }
+        .user-review-list{
+            padding: 25px 20px 30px;
+            position: relative;
+            min-height: 159px;
+        }
+        .detail {
+            margin-top: 10px;
+            font-size: 15px;
+            color: #000;
+        }
+        .detaildiv__right {
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+    .review__title {
+        color: #5da60d;
+        font-family: Georgia;
+        font-size: 16px;
+        font-style: italic;
+    }
+    .review-list__left {
+        width: 140px;
+        box-sizing: border-box;
+        padding: 25px 0 0;
+        height: 100%;
+        top: 0;
+    }
+    .preddiv1 {
+        color: #5da60d;
+        border: 1px solid #5da60d;
+        padding: 10px 3px 10px;
+        width: 69px;
+        right: 20px;
+        top: 25px;
+        border-radius: 4px;
+    }
+    .preddiv2 {
+        color: red;
+        border: 1px solid red;
+        padding: 10px 3px 10px;
+        width: 69px;
+        right: 20px;
+        top: 25px;
+        border-radius: 4px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+    li {
+        text-align: -webkit-match-parent;
+        padding-top: 25px;
+        padding-bottom: 30px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    .hname{
+        color : black;
+        font: menu;
+    }
+    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <form method="POST" action="">
+        {%csrf_token %}
+        <input type="text" placeholder="Enter hotel name" name="name">
+        <input type="text" placeholder="Enter Place" name="place">
+        <input type="submit" id="b1" value="Check">
+    </form>
+    {% if feeds %}
+        <h2>Total review : {{feeds.total_rev}}</h2>
+        <h3>Total positive : {{feeds.total_pos}}</h3>
+        <h3>Total negative : {{feeds.total_neg}}</h3>
+        <br>
+
+    <ul class="user-review-list">
+            {% for key,value in feeds.items %}
+               {% if value.review%}
+                <li class="review">
+                <div class="row">
+                    <div class="col-sm-2">
+                    <div class="review-list__left">
+                        <p class="review__title">
+                            <span class="hname">{{value.name}} :</span>
+                                <br>{{value.review}}
+                        </p>
+                    </div>
+                    </div>
+                    <div class="col-sm-8">
+                    <div class="detaildiv__right">
+                        <p class="detail">
+                        {{value.detail}}
+                        </p>
+                    </div>
+                    </div>
+                    <div class="col-sm-2">
+                    {% if value.prediction == "Positive"%}
+                    <div class="preddiv1 text-center">
+                        <p>
+                        {{value.prediction}}
+                        </p>
+                    </div>
+                    {% endif %}
+                    {% if value.prediction == "Negative"%}
+                    <div class="preddiv2 text-center">
+                        <p>
+                        {{value.prediction}}
+                        </p>
+                    </div>
+                    {% endif %}
+                    </div>
+                 </div>
+                </li>
+                <hr>
+                {% endif %}
+            {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+</body>
+</html>
