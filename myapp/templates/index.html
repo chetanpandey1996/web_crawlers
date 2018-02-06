@@ -73,64 +73,64 @@
     }
     </style>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 <body>
 <div class="container">
-    <form method="POST" action="">
-        {%csrf_token %}
-        <input type="text" placeholder="Enter hotel name" name="name">
-        <input type="text" placeholder="Enter Place" name="place">
-        <input type="submit" id="b1" value="Check">
-    </form>
-    {% if feeds %}
-        <h2>Total review : {{feeds.total_rev}}</h2>
-        <h3>Total positive : {{feeds.total_pos}}</h3>
-        <h3>Total negative : {{feeds.total_neg}}</h3>
-        <br>
-
-    <ul class="user-review-list">
-            {% for key,value in feeds.items %}
-               {% if value.review%}
-                <li class="review">
-                <div class="row">
-                    <div class="col-sm-2">
-                    <div class="review-list__left">
-                        <p class="review__title">
-                            <span class="hname">{{value.name}} :</span>
-                                <br>{{value.review}}
-                        </p>
-                    </div>
-                    </div>
-                    <div class="col-sm-8">
-                    <div class="detaildiv__right">
-                        <p class="detail">
-                        {{value.detail}}
-                        </p>
-                    </div>
-                    </div>
-                    <div class="col-sm-2">
-                    {% if value.prediction == "Positive"%}
-                    <div class="preddiv1 text-center">
-                        <p>
-                        {{value.prediction}}
-                        </p>
-                    </div>
-                    {% endif %}
-                    {% if value.prediction == "Negative"%}
-                    <div class="preddiv2 text-center">
-                        <p>
-                        {{value.prediction}}
-                        </p>
-                    </div>
-                    {% endif %}
-                    </div>
-                 </div>
-                </li>
-                <hr>
+    <h2>Review Crawler</h2>
+    {% for city in acities %}
+        {% for incity in city %}
+    <div class="hname"> {{incity.name}}</div>
+    <div class="all">
+             Total: {{incity.total}}<br>
+    <div class="ttrip">Trip Advisor : {{incity.tda}}
+        <div class="tad_in">
+            {% for review in incity.data %}
+                {% if review.from == "TripAdvisor" %}
+                    {{review.from}}<br>
+                    {{review.head}}<br>
+                    {{review.detail}}<br>
+                    {{review.prediction}}<br>
                 {% endif %}
             {% endfor %}
-    </ul>
-    {% endif %}
+        </div>
+    </div>
+    <div class="mtrip">MakeMyTrip : {{incity.mmt}}
+        <div class="mmt_in">
+            {% for review in incity.data %}
+                {% if review.from == "MakeMyTrip" %}
+                    {{review.from}}<br>
+                    {{review.head}}<br>
+                    {{review.detail}}<br>
+                    {{review.prediction}}<br>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    </div>
+        {% endfor %}
+    {% endfor %}
+
 </div>
+<script>
+$(document).ready(function(){
+        $(".all").hide();
+        $(".tad_in").hide();
+        $(".mmt_in").hide();
+        $(".hname").click(function(){
+                $(this).next().toggle()
+        })
+
+        $(".ttrip").click(function(){
+            $(this).children().toggle()
+
+        })
+
+        $(".mtrip").click(function(){
+            $(this).children().toggle()
+
+        })
+});
+</script>
 </body>
 </html>
