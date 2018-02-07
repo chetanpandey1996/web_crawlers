@@ -16,7 +16,8 @@
             position: relative;
             min-height: 159px;
         }
-        .detail {
+        .detail {manali
+
             margin-top: 10px;
             font-size: 15px;
             color: #000;
@@ -74,62 +75,94 @@
     </style>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
 <div class="container">
     <h2>Review Crawler</h2>
+
+
     {% for city in acities %}
-        {% for incity in city %}
-    <div class="hname"> {{incity.name}}</div>
-    <div class="all">
-             Total: {{incity.total}}<br>
-    <div class="ttrip">Trip Advisor : {{incity.tda}}
-        <div class="tad_in">
-            {% for review in incity.data %}
-                {% if review.from == "TripAdvisor" %}
-                    {{review.from}}<br>
-                    {{review.head}}<br>
-                    {{review.detail}}<br>
-                    {{review.prediction}}<br>
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-    <div class="mtrip">MakeMyTrip : {{incity.mmt}}
-        <div class="mmt_in">
-            {% for review in incity.data %}
-                {% if review.from == "MakeMyTrip" %}
-                    {{review.from}}<br>
-                    {{review.head}}<br>
-                    {{review.detail}}<br>
-                    {{review.prediction}}<br>
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-    </div>
-        {% endfor %}
+    <div class="cityname">{{city}}</div>
+    <div class="citydata"></div>
     {% endfor %}
 
 </div>
 <script>
+
 $(document).ready(function(){
-        $(".all").hide();
-        $(".tad_in").hide();
-        $(".mmt_in").hide();
-        $(".hname").click(function(){
-                $(this).next().toggle()
-        })
 
-        $(".ttrip").click(function(){
-            $(this).children().toggle()
+ $.fn.hideshow = function(cntrl){
+    console.log($(cntrl).children().toggle());
+    if($(cntrl).children().text() == ''){
+    var hotel = $(cntrl).parent().prev().text()
+    var htl = $(cntrl).parent().prev()
+    var city = $(cntrl).parent().parent().prev().text()
+    console.log(htl)
+    tda_data= $($(htl).next().children()[1]).children()
+    mmt_data= $($(htl).next().children()[2]).children()
+    $.ajax({
+						type: 'POST',
+                        data: {
+                             csrfmiddlewaretoken : '{{csrf_token}}',
+                             hotel_name : hotel,
+                             city_name : city
+                             },
+                        url:'/review/',
+                        datatype:'json'
+                    })
+                    .done(function(data){
+                     $(tda_data).html("");
+                     $(mmt_data).html("");
 
-        })
+                        $.each(data, function( key, values ) {
+                            $.each(values.data, function( key, value ) {
+                                if(value.from == 'TripAdvisor'){
+                                    $(tda_data).append("<br> Review : "+value.head+"<br> Detail : "+value.detail+"<br> Prediction : "+value.prediction+"<br><hr>");
+                                }else if(value.from == 'MakeMyTrip'){
+                                    $(mmt_data).append("<br> Review : "+value.head+"<br> Detail : "+value.detail+"<br> Prediction : "+value.prediction+"<br><hr>");
+                                }
+                                });
 
-        $(".mtrip").click(function(){
-            $(this).children().toggle()
+                        });
 
-        })
+
+
+                   });
+    }
+ }
+
+    $('.cityname').click(function(){
+       if($(this).next().text() != '')
+        { $(this).next().toggle() }
+
+      var city =  $(this).text()
+      var cntrl = this
+      if($(this).next().text() == '')
+      {
+      $.ajax({
+						type: 'POST',
+                        data: {
+                             csrfmiddlewaretoken : '{{csrf_token}}',
+                             cityname :city
+                             },
+                        url:'/city/',
+                        datatype:'json'
+                    })
+                    .done(function(data){
+                    console.log($(cntrl).next())
+                     $(cntrl).next().html("");
+
+                        $.each(data, function( key, values ) {
+
+                            $(cntrl).next().append("<div class='hname'>"+values.name+"</div><div class='all'>Total : "+ values.total + "<br><div class='ttrip' onclick = '$.fn.hideshow(this)'>Trip Advisor : "+ values.tda +"<div class='tad_in'></div></div><div class='mtrip' onclick='$.fn.hideshow(this)'>MakeMyTrip : "+ values.mmt+"<div class='mmt_in'></div></div></div><hr>")
+                        });
+                        $('.tad_in').hide();
+                        $('.mmt_in').hide();
+                   });
+      }
+    });
+
 });
 </script>
 </body>

@@ -345,6 +345,62 @@ for d in da:
                     search(search_data)
                     collection.update({'name': hotel_name}, {
                         '$set': {'total': {'positive': total_positive, 'negative': total_nagetive}}})
+                        
+                        
+                        
+                        
+                        
+                 {% for incity in city %}
+    <div class="hname"> {{incity.name}}</div>
+    <div class="all">
+             Total: {{incity.total}}<br>
+    <div class="ttrip">Trip Advisor : {{incity.tda}}
+        <div class="tad_in">
+            {% for review in incity.data %}
+                {% if review.from == "TripAdvisor" %}
+                    {{review.from}}<br>
+                    {{review.head}}<br>
+                    {{review.detail}}<br>
+                    {{review.prediction}}<br>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="mtrip">MakeMyTrip : {{incity.mmt}}
+        <div class="mmt_in">
+            {% for review in incity.data %}
+                {% if review.from == "MakeMyTrip" %}
+                    {{review.from}}<br>
+                    {{review.head}}<br>
+                    {{review.detail}}<br>
+                    {{review.prediction}}<br>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    </div>
+        {% endfor %}  
+        
+        
+        
+        
+        
+      $(".all").hide();
+        $(".tad_in").hide();
+        $(".mmt_in").hide();
+        $(".hname").click(function(){
+                $(this).next().toggle()
+        })
+
+        $(".ttrip").click(function(){
+            $(this).children().toggle()
+
+        })
+
+        $(".mtrip").click(function(){
+            $(this).children().toggle()
+
+        })                
 
 '''
 
