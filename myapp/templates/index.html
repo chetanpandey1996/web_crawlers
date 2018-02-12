@@ -7,6 +7,7 @@
         ul{
             margin : 0;
             padding: 0;
+            list-style-type:none;
         }
         body {
             font-family: lato-regular,Arial,Helvetica,sans-serif;
@@ -16,7 +17,7 @@
             position: relative;
             min-height: 159px;
         }
-        .detail {manali
+        .detail {
 
             margin-top: 10px;
             font-size: 15px;
@@ -67,10 +68,36 @@
         padding-bottom: 30px;
         padding-left: 20px;
         padding-right: 20px;
+        list-style-type:none;
     }
     .hname{
         color : black;
         font: menu;
+    }
+    .rowh{
+        background-color : red;
+        height: auto;
+        height: 40px;
+        padding-top: 7px;
+        padding-left: 7px;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
+    .cityname{
+        height: 40px;
+        padding-top: 10px;
+        padding-left: 5px;
+        margin-bottom: 10px;
+        background-color: steelblue;
+    }
+    .cityname:hover{
+        background-color: blue;
+        cursor: pointer;
+    }
+    .from:hover{
+        background-color: forestgreen;
+        cursor: pointer;
+        box-shadow: 5px 5px;
     }
     </style>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
@@ -93,14 +120,13 @@
 $(document).ready(function(){
 
  $.fn.hideshow = function(cntrl){
-    console.log($(cntrl).children().toggle());
-    if($(cntrl).children().text() == ''){
-    var hotel = $(cntrl).parent().prev().text()
-    var htl = $(cntrl).parent().prev()
-    var city = $(cntrl).parent().parent().prev().text()
-    console.log(htl)
-    tda_data= $($(htl).next().children()[1]).children()
-    mmt_data= $($(htl).next().children()[2]).children()
+    if($(cntrl).next().text() == ''){
+    var hotel = $($(cntrl).parent().parent().prev().children()[0]).text()
+    console.log(hotel)
+    var city = $(cntrl).parent().parent().parent().parent().prev().text()
+    console.log(city)
+    tda_data= $($(cntrl).parent().children()[1])
+    mmt_data= $($(cntrl).parent().children()[3])
     $.ajax({
 						type: 'POST',
                         data: {
@@ -118,21 +144,36 @@ $(document).ready(function(){
                         $.each(data, function( key, values ) {
                             $.each(values.data, function( key, value ) {
                                 if(value.from == 'TripAdvisor'){
-                                    $(tda_data).append("<br> Review : "+value.head+"<br> Detail : "+value.detail+"<br> Prediction : "+value.prediction+"<br><hr>");
+                                    if(value.prediction == 'Positive')
+                                    {
+                                        $(tda_data).append("<li class='review'><div class='row'><div class='col-sm-2'><div class='review-list__left'><p class='review__title'> "+value.head+"</p></div></div><div class='col-sm-8'><div class='detaildiv__right'><p class='detail'>"+value.detail+"</p></div></div><div class='col-sm-2'><div class='preddiv1 text-center'><p>"+value.prediction+"</p></div></li><hr>");
+
+                                    }else{
+                                        $(tda_data).append("<li class='review'><div class='row'><div class='col-sm-2'><div class='review-list__left'><p class='review__title'> "+value.head+"</p></div></div><div class='col-sm-8'><div class='detaildiv__right'><p class='detail'>"+value.detail+"</p></div></div><div class='col-sm-2'><div class='preddiv2 text-center'><p>"+value.prediction+"</p></div></li><hr>");
+
+                                    }
                                 }else if(value.from == 'MakeMyTrip'){
-                                    $(mmt_data).append("<br> Review : "+value.head+"<br> Detail : "+value.detail+"<br> Prediction : "+value.prediction+"<br><hr>");
+                                     if(value.prediction == 'Positive')
+                                     {
+                                        $(mmt_data).append("<li class='review'> <div class='row'><div class='col-sm-2'><div class='review-list__left'><p class='review__title'>"+value.head+"</p></div></div><div class='col-sm-8'><div class='detaildiv__right'><p class='detail'>"+value.detail+"</p></div></div><div class='col-sm-2'><div class='preddiv1 text-center'><p>"+value.prediction+"</p></div></li><hr>");
+                                     }else{
+                                        $(mmt_data).append("<li class='review'> <div class='row'><div class='col-sm-2'><div class='review-list__left'><p class='review__title'>"+value.head+"</p></div></div><div class='col-sm-8'><div class='detaildiv__right'><p class='detail'>"+value.detail+"</p></div></div><div class='col-sm-2'><div class='preddiv2 text-center'><p>"+value.prediction+"</p></div></li><hr>");
+
+                                     }
                                 }
                                 });
 
                         });
 
-
+                        $(tda_data).append("</ul>")
+                        $(mmt_data).append("</ul>")
 
                    });
     }
+$(cntrl).next().toggle()
  }
 
-    $('.cityname').click(function(){
+$('.cityname').click(function(){
        if($(this).next().text() != '')
         { $(this).next().toggle() }
 
@@ -155,7 +196,7 @@ $(document).ready(function(){
 
                         $.each(data, function( key, values ) {
 
-                            $(cntrl).next().append("<div class='hname'>"+values.name+"</div><div class='all'>Total : "+ values.total + "<br><div class='ttrip' onclick = '$.fn.hideshow(this)'>Trip Advisor : "+ values.tda +"<div class='tad_in'></div></div><div class='mtrip' onclick='$.fn.hideshow(this)'>MakeMyTrip : "+ values.mmt+"<div class='mmt_in'></div></div></div><hr>")
+                            $(cntrl).next().append("<div class='hname'><div class='row rowh'><div class='col-sm-10'>"+values.name+"</div><div class='col-sm-2'>"+ Math.ceil(values.total.positive*100/(values.total.positive+values.total.negative))+"% Positive</div></div><div class='container'><div class='all'><div class='row rowh from' onclick = '$.fn.hideshow(this)'><div class='col-sm-10'><div class='ttrip'>Trip Advisor </div></div><div class='col-sm-2'>"+ Math.ceil(values.tda.Totalp*100/(values.tda.Totalp+values.tda.Totaln)) +"% Positive</div></div><div class='tad_in'><ul class='user-review-list'></div><div class='row rowh from'  onclick='$.fn.hideshow(this)'><div class='col-sm-10'><div class='mtrip'>MakeMyTrip </div></div><div class='col-sm-2'>"+ Math.ceil(values.mmt.Totalp*100/(values.mmt.Totalp+values.mmt.Totaln))+"% Positive</div></div><div class='mmt_in'><ul class='user-review-list'></div></div></div></div><hr>")
                         });
                         $('.tad_in').hide();
                         $('.mmt_in').hide();
@@ -164,6 +205,12 @@ $(document).ready(function(){
     });
 
 });
+
 </script>
 </body>
 </html>
+
+
+
+
+
