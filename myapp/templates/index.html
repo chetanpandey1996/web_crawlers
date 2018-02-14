@@ -83,6 +83,15 @@
         padding-bottom: 5px;
         margin-bottom: 10px;
     }
+    .rowp{
+        background-color : green;
+        height: auto;
+        height: 40px;
+        padding-top: 7px;
+        padding-left: 7px;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
     .cityname{
         height: 40px;
         padding-top: 10px;
@@ -170,6 +179,7 @@ $(document).ready(function(){
 
                    });
     }
+
 $(cntrl).next().toggle()
  }
 
@@ -195,11 +205,16 @@ $('.cityname').click(function(){
                      $(cntrl).next().html("");
 
                         $.each(data, function( key, values ) {
+                            if(Math.ceil(values.total.positive*100/(values.total.positive+values.total.negative)) >= 50){
+                            $(cntrl).next().append("<div class='hname'><div class='row rowp'><div class='col-sm-10'>"+values.name+"</div><div class='col-sm-2'>"+ Math.ceil(values.total.positive*100/(values.total.positive+values.total.negative))+"% Positive</div></div><div class='container'><div class='all'><div class='row rowp from' onclick = '$.fn.hideshow(this)'><div class='col-sm-10'><div class='ttrip'>Trip Advisor </div></div><div class='col-sm-2'>"+ Math.ceil(values.tda.Totalp*100/(values.tda.Totalp+values.tda.Totaln)) +"% Positive</div></div><div class='tad_in'><ul class='user-review-list'></div><div class='row rowp from'  onclick='$.fn.hideshow(this)'><div class='col-sm-10'><div class='mtrip'>MakeMyTrip </div></div><div class='col-sm-2'>"+ Math.ceil(values.mmt.Totalp*100/(values.mmt.Totalp+values.mmt.Totaln))+"% Positive</div></div><div class='mmt_in'><ul class='user-review-list'></div></div></div></div><hr>")
+                            }
+                            else{
+                           $(cntrl).next().append("<div class='hname'><div class='row rowh'><div class='col-sm-10'>"+values.name+"</div><div class='col-sm-2'>"+ Math.ceil(values.total.positive*100/(values.total.positive+values.total.negative))+"% Positive</div></div><div class='container'><div class='all'><div class='row rowh from' onclick = '$.fn.hideshow(this)'><div class='col-sm-10'><div class='ttrip'>Trip Advisor </div></div><div class='col-sm-2'>"+ Math.ceil(values.tda.Totalp*100/(values.tda.Totalp+values.tda.Totaln)) +"% Positive</div></div><div class='tad_in'><ul class='user-review-list'></div><div class='row rowh from'  onclick='$.fn.hideshow(this)'><div class='col-sm-10'><div class='mtrip'>MakeMyTrip </div></div><div class='col-sm-2'>"+ Math.ceil(values.mmt.Totalp*100/(values.mmt.Totalp+values.mmt.Totaln))+"% Positive</div></div><div class='mmt_in'><ul class='user-review-list'></div></div></div></div><hr>")
+                           }
 
-                            $(cntrl).next().append("<div class='hname'><div class='row rowh'><div class='col-sm-10'>"+values.name+"</div><div class='col-sm-2'>"+ Math.ceil(values.total.positive*100/(values.total.positive+values.total.negative))+"% Positive</div></div><div class='container'><div class='all'><div class='row rowh from' onclick = '$.fn.hideshow(this)'><div class='col-sm-10'><div class='ttrip'>Trip Advisor </div></div><div class='col-sm-2'>"+ Math.ceil(values.tda.Totalp*100/(values.tda.Totalp+values.tda.Totaln)) +"% Positive</div></div><div class='tad_in'><ul class='user-review-list'></div><div class='row rowh from'  onclick='$.fn.hideshow(this)'><div class='col-sm-10'><div class='mtrip'>MakeMyTrip </div></div><div class='col-sm-2'>"+ Math.ceil(values.mmt.Totalp*100/(values.mmt.Totalp+values.mmt.Totaln))+"% Positive</div></div><div class='mmt_in'><ul class='user-review-list'></div></div></div></div><hr>")
                         });
                         $('.tad_in').hide();
-                        $('.mmt_in').hide();
+                        $('.mmt_in').hide();$(cntrl).next().append("<div class='hname'><div class='row rowh'><div class='col-sm-10'>"+values.name+"</div><div class='col-sm-2'>"+ Math.ceil(values.total.positive*100/(values.total.positive+values.total.negative))+"% Positive</div></div><div class='container'><div class='all'><div class='row rowh from' onclick = '$.fn.hideshow(this)'><div class='col-sm-10'><div class='ttrip'>Trip Advisor </div></div><div class='col-sm-2'>"+ Math.ceil(values.tda.Totalp*100/(values.tda.Totalp+values.tda.Totaln)) +"% Positive</div></div><div class='tad_in'><ul class='user-review-list'></div><div class='row rowh from'  onclick='$.fn.hideshow(this)'><div class='col-sm-10'><div class='mtrip'>MakeMyTrip </div></div><div class='col-sm-2'>"+ Math.ceil(values.mmt.Totalp*100/(values.mmt.Totalp+values.mmt.Totaln))+"% Positive</div></div><div class='mmt_in'><ul class='user-review-list'></div></div></div></div><hr>")
                    });
       }
     });

@@ -1,5 +1,5 @@
 from django.db import models
-
+'''
 from pymongo import MongoClient
 import pageno as pg
 from urllib.request import Request, urlopen
@@ -15,7 +15,7 @@ import pickle
 from nltk.corpus import stopwords
 from feedbackCrawl_django.settings import BASE_DIR
 
-'''
+
 city_name = ''
 hotel_name = ''
 ir = 0
@@ -36,6 +36,28 @@ bk_positive = 0
 client = MongoClient('localhost', 27017)
 db = client['feedback']
 collection = db['places']
+
+def getpage(data):
+    ul = "https://www.google.com/search?q="
+    uClient = Request(ul + "hotels+in+"+data, headers={'User-Agent': 'Mozilla/5.0'})
+    page_html = urlopen(uClient).read()
+    page_soup = soup(page_html, "html.parser")
+    containers = page_soup.findAll("div", {"class": "g"})
+
+    for container in containers:
+        link = str(container.a['href'])
+        if link[7:].startswith('h'):
+            link = link[7:]
+            if link.find('makemytrip') != -1:
+                link = link[:link.index('html') + 4]
+                ul = link
+                break
+    print(ul)
+    uClient = Request(ul, headers={'User-Agent': 'Mozilla/5.0'})
+    page_html = urlopen(uClient).read()
+    page_soup = soup(page_html, "html.parser")
+    page_val  = page_soup.find("button", {"class": "jplist-last pager-view"})
+    return page_val['data-val'],ul[len(ul)-ul[::-1].index('/'):len(ul)-ul[::-1].index('.')-1]
 
 
 def insert_data(by, title, description, prediction):
@@ -115,11 +137,12 @@ def MMTscrapy(data):
         for review in re_list:
             rev = review['title']
             rev_des = review['description']
+            print(rev)
             print('- ' * 20)
             if len(rev) > 0:
                 pred = start_conv(rev)
             else:
-                pred = start_conv(rev_des)
+                pred = start_conv(rev)
             if pred == "Negative":
                 mmt_nagetive += 1
             else:
@@ -128,8 +151,7 @@ def MMTscrapy(data):
             insert_data("MakeMyTrip", rev, rev_des, pred)
             cnt += 1
             print("-------------------------------------------------------------------------\n")
-    collection.update({'name':hotel_name}, {
-        '$set': {'mmt': {'Totalp': mmt_positive, 'Totaln': mmt_nagetive}}})
+    collection.update({'name':hotel_name}, {'$set': {'mmt': {'Totalp': mmt_positive, 'Totaln': mmt_nagetive}}})
     return None
 
 
@@ -234,8 +256,7 @@ def TAscrapy(data):
             page_soup = ""
             containers = ""
             i = i + 5
-    collection.update({'name':hotel_name}, {
-        '$set': {'tda': {'Totalp': td_positive, 'Totaln': td_nagetive}}})
+    collection.update({'name':hotel_name}, {'$set': {'tda': {'Totalp': td_positive, 'Totaln': td_nagetive}}})
     return None
 
 
@@ -275,7 +296,7 @@ def search(data):
         elif url.find('tripadvisor') != -1:
             TAscrapy(url)
         elif url.find('booking') != -1:
-            url = url[len(url) - url[::-1].index('/'):len(url) - url[::-1].index('.') - 1]
+            pass #url = url[len(url) - url[::-1].index('/'):len(url) - url[::-1].index('.') - 1]
             #Gscrapy(url)
 
     print(ir + mr + tr)
@@ -288,19 +309,21 @@ while name != 'no':
     collection.update({},{"$push":{'name':name}});
     name = input("enter the city : ")
 
+
 da = collection.find()
 for d in da:
     for dt in d['name']:
         j = 0
-        if dt == 'noida' or dt == 'delhi':
-            continue
         collection = db[dt]
-        page  = pg.getpage(dt)
+        page  = getpage(dt)
         print(page[0])
         print(page[1])
+        pageno = page[0]
         p=''
         i = 1
-        while i <= int(page[0]):
+        if int(page[0]) > 10:
+            pageno = 10
+        while i <= pageno:
             url = "https://www.makemytrip.com/seo-api/hotels/api/hotels/list?propertyType=&city=" + dt + "&area=&amenity=&star=&traveller=&attraction=&country=india&chainUrlPhrase=&page=" + str(p) + "&hotelId=&pathName=%2Fhotels%2F"+dt+"-hotels.html&templateType=city_template&sortType=POPULARTITY"
             print(url)
 
@@ -312,11 +335,11 @@ for d in da:
             for name in hotel_names:
                 name = name.text
                 name = name.replace('\n','')
-                name = name.replace('.','') 
+                name = name.replace('.','')
+                print(name)
                 collection.insert({'name':name,'data':[],'mmt':'','tda':'','total':''})
             p =i
             i +=1
-
 
 da  = collection.find()
 for d in da:
@@ -329,79 +352,23 @@ load_model()
 for d in da:
     for city_name in d['name']:
         if city_name == 'manali' or city_name == 'shimla' or city_name == 'hyderabad':
-            continue
+          continue
         print('---------------------------\n')
         print(city_name)
         print('-'*20)
         collection = db[city_name]
         data = collection.find()
-
+        rnd = 1
         for d in data:
             hotel_name = d['name']
             if not hotel_name.startswith('_'):
+                    if rnd == 10:
+                        time.sleep(120)
+                        rnd = 1
                     print(hotel_name)
                     search_data = hotel_name + ' ' + city_name + ' hotel reviews'
                     search_data = search_data.replace(' ', '+')
                     search(search_data)
-                    collection.update({'name': hotel_name}, {
-                        '$set': {'total': {'positive': total_positive, 'negative': total_nagetive}}})
-                        
-                        
-                        
-                        
-                        
-                 {% for incity in city %}
-    <div class="hname"> {{incity.name}}</div>
-    <div class="all">
-             Total: {{incity.total}}<br>
-    <div class="ttrip">Trip Advisor : {{incity.tda}}
-        <div class="tad_in">
-            {% for review in incity.data %}
-                {% if review.from == "TripAdvisor" %}
-                    {{review.from}}<br>
-                    {{review.head}}<br>
-                    {{review.detail}}<br>
-                    {{review.prediction}}<br>
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-    <div class="mtrip">MakeMyTrip : {{incity.mmt}}
-        <div class="mmt_in">
-            {% for review in incity.data %}
-                {% if review.from == "MakeMyTrip" %}
-                    {{review.from}}<br>
-                    {{review.head}}<br>
-                    {{review.detail}}<br>
-                    {{review.prediction}}<br>
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-    </div>
-        {% endfor %}  
-        
-        
-        
-        
-        
-      $(".all").hide();
-        $(".tad_in").hide();
-        $(".mmt_in").hide();
-        $(".hname").click(function(){
-                $(this).next().toggle()
-        })
-
-        $(".ttrip").click(function(){
-            $(this).children().toggle()
-
-        })
-
-        $(".mtrip").click(function(){
-            $(this).children().toggle()
-
-        })                
-
+                    rnd += 1
+                    collection.update({'name': hotel_name}, {'$set': {'total': {'positive': total_positive, 'negative': total_nagetive}}})
 '''
-
-
